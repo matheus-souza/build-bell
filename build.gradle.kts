@@ -28,8 +28,8 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("213")
-        untilBuild.set("254.*")
-        changeNotes.set("Fixed issues with compatibility in the Quail version of Android Studio.")
+        untilBuild.set("263.*")
+        changeNotes.set("Extended compatibility to cover Android Studio builds up to 263.*.")
     }
 
     signPlugin {
