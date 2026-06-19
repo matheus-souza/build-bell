@@ -1,10 +1,6 @@
 <a id="readme-top"></a>
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![License][license-shield]][license-url]
+<!-- code-analysis-badge -->
 
 
 
@@ -25,6 +21,8 @@
     &middot;
     <a href="https://github.com/matheus-souza/build-bell/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
+  <br />
+  <img src="https://img.shields.io/badge/Android%20Studio-Dolphin%202021.3%20→%20Quail%202025.4-3DDC84?style=flat-square&logo=androidstudio&logoColor=white" alt="Supported Android Studio versions: Dolphin 2021.3 to Quail 2025.4">
 </div>
 
 
@@ -40,8 +38,6 @@
       </ul>
     </li>
     <li><a href="#installation">Installation</a></li>
-    <li><a href="#supported-versions">Supported Versions</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -98,46 +94,10 @@ Stay focused on other tasks while your build runs. BuildBell will let you know w
 
 
 
-<!-- SUPPORTED VERSIONS -->
-## Supported Versions
-
-| Android Studio | Version |
-|---|---|
-| Quail | 2025.4.x |
-| Panda | 2025.3.x |
-| Otter | 2025.2.x |
-| Narwhal | 2025.1.x |
-| Meerkat | 2024.3.x |
-| Ladybug | 2024.2.x |
-| Koala | 2024.1.x |
-| Jellyfish | 2023.3.x |
-| Iguana | 2023.2.x |
-| Hedgehog | 2023.1.x |
-| Electric Eel | 2022.x |
-| Dolphin | 2021.3.x |
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [ ] Custom sound configuration via Settings UI
-- [ ] Per-project enable/disable toggle
-- [ ] Visual notification in addition to sound
-- [ ] Support for other JetBrains IDEs (IntelliJ IDEA, Fleet)
-
-See the [open issues](https://github.com/matheus-souza/build-bell/issues) for a full list of proposed features and known issues.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are welcome and greatly appreciated.
+Check the [Roadmap](ROADMAP.md) to see what's planned. Contributions are welcome and greatly appreciated.
 
 1. Fork the project
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -180,16 +140,6 @@ Project Link: [https://github.com/matheus-souza/build-bell](https://github.com/m
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/matheus-souza/build-bell.svg?style=for-the-badge
-[contributors-url]: https://github.com/matheus-souza/build-bell/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/matheus-souza/build-bell.svg?style=for-the-badge
-[forks-url]: https://github.com/matheus-souza/build-bell/network/members
-[stars-shield]: https://img.shields.io/github/stars/matheus-souza/build-bell.svg?style=for-the-badge
-[stars-url]: https://github.com/matheus-souza/build-bell/stargazers
-[issues-shield]: https://img.shields.io/github/issues/matheus-souza/build-bell.svg?style=for-the-badge
-[issues-url]: https://github.com/matheus-souza/build-bell/issues
-[license-shield]: https://img.shields.io/github/license/matheus-souza/build-bell.svg?style=for-the-badge
-[license-url]: https://github.com/matheus-souza/build-bell/blob/main/LICENSE
 [kotlin-shield]: https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white
 [kotlin-url]: https://kotlinlang.org
 [gradle-shield]: https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white
