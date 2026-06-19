@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.9.23"
     id("org.jetbrains.intellij") version "1.13.3"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    jacoco
 }
 
 group = "br.com.matheuhsouza"
@@ -39,6 +40,14 @@ tasks {
 
     test {
         useJUnitPlatform()
+        finalizedBy(jacocoTestReport)
+    }
+
+    jacocoTestReport {
+        dependsOn(test)
+        reports {
+            xml.required.set(true)
+        }
     }
 
     runPluginVerifier {

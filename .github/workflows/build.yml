@@ -80,8 +80,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compile project
-        run: ./gradlew classes testClasses
+      - name: Build and generate coverage report
+        run: ./gradlew test jacocoTestReport
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
