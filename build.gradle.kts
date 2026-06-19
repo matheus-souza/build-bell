@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.9.23"
     id("org.jetbrains.intellij") version "1.13.3"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "br.com.matheuhsouza"
@@ -9,6 +10,16 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+}
+
+detekt {
+    config.setFrom(files("detekt.yml"))
+    buildUponDefaultConfig = true
 }
 
 intellij {
@@ -24,6 +35,14 @@ tasks {
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions.jvmTarget = "11"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    runPluginVerifier {
+        ideVersions.set(listOf("IC-2023.2", "IC-2024.1", "IC-2024.2", "IC-2025.1"))
     }
 
     patchPluginXml {

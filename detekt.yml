@@ -1,0 +1,38 @@
+build:
+  maxIssues: 0
+
+complexity:
+  TooManyFunctions:
+    thresholdInFiles: 15
+    thresholdInClasses: 11
+  LongParameterList:
+    functionThreshold: 6
+  LargeClass:
+    threshold: 300
+  LongMethod:
+    threshold: 50
+
+style:
+  MaxLineLength:
+    maxLineLength: 140
+  WildcardImport:
+    active: true
+  MagicNumber:
+    active: false
+
+comments:
+  CommentOverPrivateFunction:
+    active: false
+  CommentOverPrivateProperty:
+    active: false
+
+formatting:
+  active: true
+  android: false
+  autoCorrect: false
+  indentation:
+    active: true
+    indentSize: 4
+  MaximumLineLength:
+    active: true
+    maxLineLength: 140
