@@ -3,15 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.jvm") version "1.9.23"
     id("org.jetbrains.intellij") version "1.13.3"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
-    id("org.sonarqube") version "4.4.1.3373"
-}
-
-sonar {
-    properties {
-        property("sonar.projectKey", "matheus-souza_build-bell")
-        property("sonar.organization", "matheus-souza")
-        property("sonar.host.url", "https://sonarcloud.io")
-    }
 }
 
 group = "br.com.matheuhsouza"
