@@ -1,1 +1,1 @@
-rootProject.name = "BuildFinishNotifier"
+rootProject.name = "BuildBell"

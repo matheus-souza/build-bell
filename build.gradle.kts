@@ -4,8 +4,8 @@ plugins {
     id("org.jetbrains.intellij") version "1.13.3"
 }
 
-group = "com.isaac"
-version = "1.0.11"
+group = "br.com.matheuhsouza"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -29,7 +29,7 @@ tasks {
     patchPluginXml {
         sinceBuild.set("213")
         untilBuild.set("263.*")
-        changeNotes.set("Extended compatibility to cover Android Studio builds up to 263.*.")
+        changeNotes.set("Initial release of BuildBell.")
     }
 
     signPlugin {

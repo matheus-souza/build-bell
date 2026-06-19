@@ -1,11 +1,17 @@
-package com.isaac.buildfinishnotifier
+/*
+ * Originally created by WonJoongLee, licensed under the Apache License, Version 2.0.
+ * https://github.com/WonJoongLee/BuildFinishNotifier
+ *
+ * Modified by Matheus Souza (matheuhsouza.com.br)
+ */
+package br.com.matheuhsouza.buildbell
 
 import com.android.tools.idea.gradle.project.build.BuildContext
 import com.android.tools.idea.gradle.project.build.BuildStatus
 import com.android.tools.idea.gradle.project.build.GradleBuildListener
 import com.intellij.util.ui.UIUtil
 
-class BuildFinishNotifier : GradleBuildListener {
+class BuildBell : GradleBuildListener {
     override fun buildStarted(context: BuildContext) = Unit
 
     override fun buildFinished(status: BuildStatus, context: BuildContext?) {

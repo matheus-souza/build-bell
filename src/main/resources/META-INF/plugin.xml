@@ -1,14 +1,15 @@
 <idea-plugin>
-    <id>com.isaac.BuildFinishNotifier</id>
-    <name>Build finish notifier</name>
-    <vendor email="realjoong@gmail.com">IsaacCompany</vendor>
+    <id>br.com.matheuhsouza.buildbell</id>
+    <name>BuildBell</name>
+    <vendor email="mh.matheussouza@gmail.com" url="https://matheuhsouza.com.br">Matheus Souza</vendor>
     <description><![CDATA[
-    <h2>Build Completion Sound Effect</h2><br>
-    This plugin is designed to notify you when your build process is complete with sound effects.<br><br>
-    Usage:<br>
-    - If the build is successful, a success sound effect will be played.<br>
-    - If the build failed, a fail sound effect will be played.<br><br>
-    Note: Please make sure your speakers or headphones are properly connected and the volume is adjusted accordingly.<br>
+    <h2>BuildBell — Build Completion Sound Notifier</h2><br>
+    Never miss a build again. BuildBell plays a sound effect as soon as your Gradle build finishes,
+    so you can stay focused on other tasks while waiting.<br><br>
+    <b>Features:</b><br>
+    - Plays a success sound when the build passes.<br>
+    - Plays a failure sound when the build fails.<br><br>
+    <b>Note:</b> Make sure your speakers or headphones are connected and the volume is adjusted accordingly.<br>
   ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -18,7 +19,7 @@
     <extensions defaultExtensionNs="com.intellij"/>
 
     <projectListeners>
-        <listener class="com.isaac.buildfinishnotifier.BuildFinishNotifier"
+        <listener class="br.com.matheuhsouza.buildbell.BuildBell"
                   topic="com.android.tools.idea.gradle.project.build.GradleBuildListener"/>
     </projectListeners>
 </idea-plugin>
