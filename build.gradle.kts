@@ -13,14 +13,9 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    create("jacocoRuntime")
-}
-
 dependencies {
     testImplementation(kotlin("test"))
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
-    "jacocoRuntime"("org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime")
 }
 
 detekt {
@@ -31,6 +26,7 @@ detekt {
 intellij {
     plugins.set(listOf("Kotlin", "android"))
     version.set("2023.2.2")
+    instrumentCode.set(false)
 }
 
 tasks {
@@ -43,31 +39,19 @@ tasks {
         kotlinOptions.jvmTarget = "11"
     }
 
-    val instrumentMainForCoverage by registering(JacocoInstrument::class) {
-        inputFiles.setFrom(sourceSets.main.get().output.classesDirs)
-        outputDirectory.set(layout.buildDirectory.dir("jacoco/instrumented-main"))
-    }
-
     test {
-        dependsOn(instrumentMainForCoverage)
-        // Offline-instrumented classes before originals so IntelliJ's PathClassLoader loads them first
-        classpath = files(layout.buildDirectory.dir("jacoco/instrumented-main")) +
-                configurations["jacocoRuntime"] + classpath
-        // Disable on-the-fly agent — offline probes handle instrumentation
-        configure<JacocoTaskExtension> { isEnabled = false }
-        // Tell JaCoCo runtime where to write coverage data
-        systemProperty(
-            "jacoco-agent.destfile",
-            layout.buildDirectory.file("jacoco/test.exec").get().asFile.absolutePath
-        )
         useJUnitPlatform()
+        doFirst {
+            // IntelliJ Gradle Plugin sets -Djava.system.class.loader=PathClassLoader which uses
+            // Unsafe.defineClass() — bypassing JaCoCo's ClassFileTransformer hook. Removing it
+            // forces the standard class loader so JaCoCo can instrument plugin classes normally.
+            jvmArgs = jvmArgs?.filterNot { it.startsWith("-Djava.system.class.loader=") }
+        }
         finalizedBy(jacocoTestReport)
     }
 
     jacocoTestReport {
         dependsOn(test)
-        classDirectories.setFrom(sourceSets.main.get().output.classesDirs)
-        executionData.setFrom(layout.buildDirectory.file("jacoco/test.exec"))
         reports {
             xml.required.set(true)
         }
