@@ -1,6 +1,8 @@
 <a id="readme-top"></a>
 
 <!-- code-analysis-badge -->
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=matheus-souza_build-bell&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=matheus-souza_build-bell&metric=coverage)](https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell)
 
 
 
