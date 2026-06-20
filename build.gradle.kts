@@ -13,9 +13,14 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    create("jacocoRuntime")
+}
+
 dependencies {
     testImplementation(kotlin("test"))
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+    "jacocoRuntime"("org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime")
 }
 
 detekt {
@@ -38,13 +43,31 @@ tasks {
         kotlinOptions.jvmTarget = "11"
     }
 
+    val instrumentMainForCoverage by registering(JacocoInstrument::class) {
+        inputFiles.setFrom(sourceSets.main.get().output.classesDirs)
+        outputDirectory.set(layout.buildDirectory.dir("jacoco/instrumented-main"))
+    }
+
     test {
+        dependsOn(instrumentMainForCoverage)
+        // Offline-instrumented classes before originals so IntelliJ's PathClassLoader loads them first
+        classpath = files(layout.buildDirectory.dir("jacoco/instrumented-main")) +
+                configurations["jacocoRuntime"] + classpath
+        // Disable on-the-fly agent — offline probes handle instrumentation
+        configure<JacocoTaskExtension> { isEnabled = false }
+        // Tell JaCoCo runtime where to write coverage data
+        systemProperty(
+            "jacoco-agent.destfile",
+            layout.buildDirectory.file("jacoco/test.exec").get().asFile.absolutePath
+        )
         useJUnitPlatform()
         finalizedBy(jacocoTestReport)
     }
 
     jacocoTestReport {
         dependsOn(test)
+        classDirectories.setFrom(sourceSets.main.get().output.classesDirs)
+        executionData.setFrom(layout.buildDirectory.file("jacoco/test.exec"))
         reports {
             xml.required.set(true)
         }
