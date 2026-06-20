@@ -1,8 +1,6 @@
 <a id="readme-top"></a>
 
 <!-- code-analysis-badge -->
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=matheus-souza_build-bell&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=matheus-souza_build-bell&metric=coverage)](https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell)
 
 
 
@@ -25,6 +23,8 @@
   </p>
   <br />
   <img src="https://img.shields.io/badge/Android%20Studio-Dolphin%202021.3%20→%20Quail%202025.4-3DDC84?style=flat-square&logo=androidstudio&logoColor=white" alt="Supported Android Studio versions: Dolphin 2021.3 to Quail 2025.4">
+  <a href="https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell"><img src="https://img.shields.io/sonar/quality_gate/matheus-souza_build-bell?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white" alt="Quality Gate Status"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell"><img src="https://img.shields.io/sonar/coverage/matheus-souza_build-bell?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white" alt="Coverage"></a>
 </div>
 
 
