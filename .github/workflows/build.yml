@@ -32,6 +32,20 @@ jobs:
       - name: Run Tests
         run: ./gradlew test
 
+      - name: Debug — JaCoCo offline instrumentation
+        if: always()
+        run: |
+          echo "=== Instrumented classes ==="
+          COUNT=$(find build/jacoco/instrumented-main -name "*.class" 2>/dev/null | wc -l)
+          echo "Instrumented class count: $COUNT"
+          find build/jacoco/instrumented-main -name "*.class" 2>/dev/null | head -5 || echo "MISSING — instrumentForCoverage did not run"
+          echo "=== test.exec ==="
+          ls -lh build/jacoco/test.exec 2>/dev/null || echo "test.exec MISSING"
+          echo "=== BuildBell in test.exec? ==="
+          strings build/jacoco/test.exec 2>/dev/null | grep -i "buildbell\|matheuh\|br/com" | head -10 || echo "BuildBell NOT FOUND in test.exec"
+          echo "=== Full JaCoCo XML ==="
+          cat build/reports/jacoco/test/jacocoTestReport.xml 2>/dev/null || echo "XML not found"
+
       - name: Build Plugin
         run: ./gradlew buildPlugin
 
@@ -83,16 +97,18 @@ jobs:
       - name: Run tests and generate coverage report
         run: ./gradlew test jacocoTestReport --no-build-cache
 
-      - name: Debug — verify build outputs
+      - name: Debug — JaCoCo offline instrumentation
         run: |
-          echo "=== JaCoCo exec ==="
-          find build/jacoco -name "*.exec" 2>/dev/null && echo "found" || echo "MISSING"
-          echo "=== JaCoCo XML ==="
-          find build -name "jacocoTestReport.xml" 2>/dev/null && echo "found" || echo "MISSING"
-          echo "=== Main classes ==="
-          find build/classes/kotlin/main -name "*.class" 2>/dev/null | head -5 || echo "MISSING"
-          echo "=== XML head ==="
-          head -20 build/reports/jacoco/test/jacocoTestReport.xml 2>/dev/null || echo "XML not found"
+          echo "=== Instrumented classes ==="
+          COUNT=$(find build/jacoco/instrumented-main -name "*.class" 2>/dev/null | wc -l)
+          echo "Instrumented class count: $COUNT"
+          find build/jacoco/instrumented-main -name "*.class" 2>/dev/null | head -5 || echo "MISSING — instrumentForCoverage did not run"
+          echo "=== test.exec ==="
+          ls -lh build/jacoco/test.exec 2>/dev/null || echo "test.exec MISSING"
+          echo "=== BuildBell in test.exec? ==="
+          strings build/jacoco/test.exec 2>/dev/null | grep -i "buildbell\|matheuh\|br/com" | head -10 || echo "BuildBell NOT FOUND in test.exec"
+          echo "=== Full JaCoCo XML ==="
+          cat build/reports/jacoco/test/jacocoTestReport.xml 2>/dev/null || echo "XML not found"
 
       - name: Install sonar-scanner
         run: |

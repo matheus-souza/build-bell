@@ -33,6 +33,9 @@ detekt {
 intellij {
     plugins.set(listOf("Kotlin", "android"))
     version.set("2023.2.2")
+    // Prevents IntelliJ from generating build/instrumented/instrumentCode/ — a second copy of
+    // the plugin classes that could be loaded before our JaCoCo-instrumented version.
+    instrumentCode.set(false)
 }
 
 tasks {
@@ -45,9 +48,8 @@ tasks {
     }
 
     // JacocoInstrument is not a built-in Gradle task type. Use the JaCoCo Ant task to
-    // pre-bake coverage probes into the bytecode before class loading (offline instrumentation).
-    // This bypasses IntelliJ's PathClassLoader which uses Unsafe.defineClass() — a mechanism
-    // that JaCoCo's on-the-fly ClassFileTransformer cannot intercept.
+    // pre-bake coverage probes into bytecode (offline instrumentation). Probes fire
+    // regardless of how IntelliJ's PathClassLoader loads the class.
     val instrumentForCoverage by registering {
         dependsOn("compileKotlin")
         doLast {
@@ -64,20 +66,32 @@ tasks {
                     "fileset"("dir" to classesDir.absolutePath, "includes" to "**/*.class")
                 }
             }
+            val count = destDir.walk().filter { it.extension == "class" }.count()
+            println(">>> [JaCoCo] Instrumented $count class files → ${destDir.absolutePath}")
         }
     }
 
     test {
         dependsOn(instrumentForCoverage)
-        // Disable on-the-fly agent — offline-instrumented classes carry their own probes.
         configure<JacocoTaskExtension> { isEnabled = false }
-        // Offline runtime reads this to know where to dump coverage at JVM shutdown.
         systemProperty("jacoco-agent.destfile",
             layout.buildDirectory.file("jacoco/test.exec").get().asFile.absolutePath)
-        // Instrumented classes must precede originals on the classpath so PathClassLoader
-        // (or any loader) picks up the probe-carrying version first.
-        classpath = files(layout.buildDirectory.dir("jacoco/instrumented-main")) +
-                configurations["jacocoRuntime"] + classpath
+        // Classpath modification is in doFirst (execution time) so it runs AFTER IntelliJ
+        // Gradle Plugin's afterEvaluate — ensuring our instrumented classes are truly first.
+        doFirst {
+            val testTask = this as org.gradle.api.tasks.testing.Test
+            val instrumentedDir = project.layout.buildDirectory.dir("jacoco/instrumented-main")
+            val runtimeConf = project.configurations["jacocoRuntime"]
+            testTask.classpath = project.files(instrumentedDir) + runtimeConf + testTask.classpath
+
+            println(">>> [JaCoCo] Test classpath entries: ${testTask.classpath.files.size}")
+            println(">>> [JaCoCo] First 5 classpath entries:")
+            testTask.classpath.files.take(5).forEach { println("    $it") }
+            println(">>> [JaCoCo] Instrumented-main on classpath: ${testTask.classpath.files.any { it.path.contains("instrumented-main") }}")
+            println(">>> [JaCoCo] JaCoCo runtime on classpath: ${testTask.classpath.files.any { it.name.contains("agent") && (it.name.contains("jacoco") || it.name.contains("runtime")) }}")
+            println(">>> [JaCoCo] JVM args: ${testTask.jvmArgs}")
+            println(">>> [JaCoCo] destfile: ${testTask.systemProperties["jacoco-agent.destfile"]}")
+        }
         useJUnitPlatform()
         finalizedBy(jacocoTestReport)
     }
