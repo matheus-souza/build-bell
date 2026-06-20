@@ -14,8 +14,8 @@ repositories {
 }
 
 configurations {
-    create("jacocoAnt")
-    create("jacocoRuntime")
+    maybeCreate("jacocoAnt")
+    maybeCreate("jacocoRuntime")
 }
 
 dependencies {
