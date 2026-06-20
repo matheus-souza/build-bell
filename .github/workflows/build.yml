@@ -81,7 +81,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build and generate coverage report
-        run: ./gradlew test jacocoTestReport
+        run: ./gradlew test jacocoTestReport --no-build-cache
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
