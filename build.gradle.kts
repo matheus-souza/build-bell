@@ -14,12 +14,14 @@ repositories {
 }
 
 configurations {
+    create("jacocoAnt")
     create("jacocoRuntime")
 }
 
 dependencies {
     testImplementation(kotlin("test"))
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+    "jacocoAnt"("org.jacoco:org.jacoco.ant:${jacoco.toolVersion}")
     "jacocoRuntime"("org.jacoco:org.jacoco.agent:${jacoco.toolVersion}:runtime")
 }
 
@@ -42,25 +44,40 @@ tasks {
         kotlinOptions.jvmTarget = "17"
     }
 
-    val instrumentForCoverage by registering(org.gradle.testing.jacoco.tasks.JacocoInstrument::class) {
-        inputFiles.setFrom(sourceSets.main.get().output.classesDirs)
-        outputDirectory.set(layout.buildDirectory.dir("jacoco/instrumented-main"))
+    // JacocoInstrument is not a built-in Gradle task type. Use the JaCoCo Ant task to
+    // pre-bake coverage probes into the bytecode before class loading (offline instrumentation).
+    // This bypasses IntelliJ's PathClassLoader which uses Unsafe.defineClass() — a mechanism
+    // that JaCoCo's on-the-fly ClassFileTransformer cannot intercept.
+    val instrumentForCoverage by registering {
+        dependsOn("compileKotlin")
+        doLast {
+            val classesDir = project.layout.buildDirectory.dir("classes/kotlin/main").get().asFile
+            val destDir = project.layout.buildDirectory.dir("jacoco/instrumented-main").get().asFile
+            destDir.mkdirs()
+            project.ant.withGroovyBuilder {
+                "taskdef"(
+                    "name" to "jacocoInstrument",
+                    "classname" to "org.jacoco.ant.InstrumentTask",
+                    "classpath" to project.configurations["jacocoAnt"].asPath
+                )
+                "jacocoInstrument"("destdir" to destDir.absolutePath) {
+                    "fileset"("dir" to classesDir.absolutePath, "includes" to "**/*.class")
+                }
+            }
+        }
     }
 
     test {
         dependsOn(instrumentForCoverage)
-        // Offline instrumentation bakes JaCoCo probes into the bytecode before class loading,
-        // bypassing IntelliJ's PathClassLoader which uses Unsafe.defineClass() — a method
-        // that JaCoCo's on-the-fly ClassFileTransformer cannot intercept.
+        // Disable on-the-fly agent — offline-instrumented classes carry their own probes.
         configure<JacocoTaskExtension> { isEnabled = false }
+        // Offline runtime reads this to know where to dump coverage at JVM shutdown.
         systemProperty("jacoco-agent.destfile",
             layout.buildDirectory.file("jacoco/test.exec").get().asFile.absolutePath)
-        doFirst {
-            // Apply at execution time so IntelliJ plugin's afterEvaluate classpath additions
-            // are already in place; our instrumented classes must precede the originals.
-            classpath = files(layout.buildDirectory.dir("jacoco/instrumented-main")) +
-                    configurations["jacocoRuntime"] + classpath
-        }
+        // Instrumented classes must precede originals on the classpath so PathClassLoader
+        // (or any loader) picks up the probe-carrying version first.
+        classpath = files(layout.buildDirectory.dir("jacoco/instrumented-main")) +
+                configurations["jacocoRuntime"] + classpath
         useJUnitPlatform()
         finalizedBy(jacocoTestReport)
     }
