@@ -2,15 +2,15 @@ name: Build
 
 on:
   push:
-    branches: [main, 'feature/**']
+    branches: [main, develop, 'feature/**', 'chore/**']
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   auto-merge:
     name: Enable Auto Merge
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.base_ref == 'develop'
     permissions:
       pull-requests: write
       contents: write

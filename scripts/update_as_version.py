@@ -32,11 +32,17 @@ def update_gradle(platform_major: str, platform_version: str) -> None:
     path = ROOT / "build.gradle.kts"
     content = path.read_text()
 
-    content = re.sub(
-        r'untilBuild\.set\("[0-9]+\.\*"\)',
-        f'untilBuild.set("{platform_major}.*")',
-        content,
-    )
+    current_match = re.search(r'untilBuild\.set\("([0-9]+)\.\*"\)', content)
+    if current_match and int(platform_major) > int(current_match.group(1)):
+        content = re.sub(
+            r'untilBuild\.set\("[0-9]+\.\*"\)',
+            f'untilBuild.set("{platform_major}.*")',
+            content,
+        )
+        print(f"[gradle] untilBuild → {platform_major}.*")
+    else:
+        current = current_match.group(1) if current_match else "?"
+        print(f"[gradle] untilBuild kept at {current}.* (new major {platform_major} is not higher)")
 
     ic_version = f"IC-{_short_version(platform_version)}"
     if ic_version not in content:
@@ -45,9 +51,9 @@ def update_gradle(platform_major: str, platform_version: str) -> None:
             rf'\1", "{ic_version}"\2',
             content,
         )
+        print(f"[gradle] added {ic_version}")
 
     path.write_text(content)
-    print(f"[gradle] untilBuild → {platform_major}.* | added {ic_version}")
 
 
 def update_readme(platform_version: str, codename: str) -> None:

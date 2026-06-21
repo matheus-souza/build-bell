@@ -13,6 +13,8 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: develop
 
       - name: Fetch latest Android Studio release
         id: as_version
@@ -77,6 +79,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          base: develop
           branch: chore/as-${{ steps.as_version.outputs.codename }}-${{ steps.as_version.outputs.platform_version }}
           commit-message: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
           title: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
