@@ -12,8 +12,12 @@ import com.android.tools.idea.gradle.project.build.GradleBuildListener
 import com.intellij.util.ui.UIUtil
 
 class BuildBell(
-    private val soundPlayer: (String) -> Unit = { UIUtil.playSoundFromResource(it) }
+    private val soundPlayer: (String) -> Unit
 ) : GradleBuildListener {
+
+    // No-arg constructor for IntelliJ's listener instantiation via plugin.xml
+    constructor() : this({ UIUtil.playSoundFromResource(it) })
+
     override fun buildStarted(context: BuildContext) = Unit
 
     override fun buildFinished(status: BuildStatus, context: BuildContext?) {

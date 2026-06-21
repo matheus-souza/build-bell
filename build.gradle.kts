@@ -98,7 +98,11 @@ tasks {
 
     jacocoTestReport {
         dependsOn(test)
-        classDirectories.setFrom(sourceSets.main.get().output.classesDirs)
+        // Exclude Kotlin compiler-generated anonymous classes (e.g. BuildBell$1, the lambda
+        // created for the default soundPlayer parameter). These are not real code to test.
+        classDirectories.setFrom(sourceSets.main.get().output.classesDirs.asFileTree.matching {
+            exclude("**/*\$*.class")
+        })
         executionData.setFrom(layout.buildDirectory.file("jacoco/test.exec"))
         reports {
             xml.required.set(true)
