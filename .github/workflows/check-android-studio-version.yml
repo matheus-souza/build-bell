@@ -1,0 +1,100 @@
+name: Check Android Studio Version
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # every Monday at 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch latest Android Studio release
+        id: as_version
+        run: |
+          curl -sL 'https://jb.gg/android-studio-releases-list.xml' -o /tmp/as_releases.xml
+          python3 - <<'PYEOF'
+          import xml.etree.ElementTree as ET, os
+
+          with open('/tmp/as_releases.xml') as f:
+              data = f.read()
+
+          root = ET.fromstring('<root>' + data + '</root>')
+          content = root.find('content')
+
+          for item in content.findall('item'):
+              if item.findtext('channel') == 'Release':
+                  name = item.findtext('name')
+                  platform_build = item.findtext('platformBuild')
+                  platform_version = item.findtext('platformVersion')
+                  platform_major = platform_build.split('.')[0]
+                  codename = name.split('Android Studio ')[1].split(' ')[0]
+                  break
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'platform_major={platform_major}\n')
+              f.write(f'platform_version={platform_version}\n')
+              f.write(f'codename={codename}\n')
+
+          print(f'Latest AS: {name}  |  major={platform_major}  version={platform_version}  codename={codename}')
+          PYEOF
+
+      - name: Check if update is needed
+        id: check
+        run: |
+          MAJOR="${{ steps.as_version.outputs.platform_major }}"
+          VER="${{ steps.as_version.outputs.platform_version }}"
+          SHORT_VER=$(echo "$VER" | cut -d'.' -f1,2)
+          IC="IC-${SHORT_VER}"
+          CURRENT=$(grep -oP '(?<=untilBuild\.set\(")[0-9]+' build.gradle.kts)
+
+          echo "ic_version=${IC}" >> "$GITHUB_OUTPUT"
+
+          if [ "$MAJOR" -gt "$CURRENT" ] || ! grep -qF "\"${IC}\"" build.gradle.kts; then
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+            echo "Update needed: platformMajor=$MAJOR current=$CURRENT IC=$IC"
+          else
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            echo "Already up-to-date (platformMajor=$MAJOR current=$CURRENT IC=$IC)"
+          fi
+
+      - name: Update compatibility files
+        if: steps.check.outputs.needs_update == 'true'
+        run: |
+          python3 scripts/update_as_version.py \
+            "${{ steps.as_version.outputs.platform_major }}" \
+            "${{ steps.as_version.outputs.platform_version }}" \
+            "${{ steps.as_version.outputs.codename }}"
+
+      - name: Open PR
+        id: pr
+        if: steps.check.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/as-${{ steps.as_version.outputs.codename }}-${{ steps.as_version.outputs.platform_version }}
+          commit-message: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
+          title: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
+          labels: version-update
+          body: |
+            ## Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }} detectado automaticamente
+
+            ### Mudanças
+            - `untilBuild` → `${{ steps.as_version.outputs.platform_major }}.*`
+            - `${{ steps.check.outputs.ic_version }}` adicionado em `ideVersions`
+            - Badge do README atualizado
+
+            ### Antes do merge
+            - [ ] Plugin Verifier passou com `${{ steps.check.outputs.ic_version }}`
+            - [ ] Instalar o Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }} e confirmar que o BuildBell toca o som corretamente
+
+      - name: Enable auto-merge
+        if: steps.check.outputs.needs_update == 'true' && steps.pr.outputs.pull-request-created == 'true'
+        run: gh pr merge --auto --merge "${{ steps.pr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
