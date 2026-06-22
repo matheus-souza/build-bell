@@ -78,7 +78,7 @@ jobs:
         if: steps.check.outputs.needs_update == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           base: develop
           branch: chore/as-${{ steps.as_version.outputs.codename }}-${{ steps.as_version.outputs.platform_version }}
           commit-message: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
