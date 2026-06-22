@@ -43,26 +43,62 @@ jobs:
               f.write(f'platform_version={platform_version}\n')
               f.write(f'codename={codename}\n')
 
-          print(f'Latest AS: {name}  |  major={platform_major}  version={platform_version}  codename={codename}')
+          print(f'Latest AS release: {name}  |  major={platform_major}  version={platform_version}  codename={codename}')
+          PYEOF
+
+      - name: Fetch latest Android Studio Canary
+        id: canary_version
+        run: |
+          python3 - <<'PYEOF'
+          import xml.etree.ElementTree as ET, os
+
+          with open('/tmp/as_releases.xml') as f:
+              data = f.read()
+
+          root = ET.fromstring('<root>' + data + '</root>')
+          content = root.find('content')
+
+          canary_major = ""
+          for item in content.findall('item'):
+              if item.findtext('channel') == 'Canary':
+                  platform_build = item.findtext('platformBuild')
+                  canary_major = platform_build.split('.')[0]
+                  name = item.findtext('name')
+                  print(f'Latest AS canary: {name}  |  major={canary_major}')
+                  break
+
+          if not canary_major:
+              print('No Canary build found in feed')
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'platform_major={canary_major}\n')
           PYEOF
 
       - name: Check if update is needed
         id: check
         run: |
           MAJOR="${{ steps.as_version.outputs.platform_major }}"
+          CANARY="${{ steps.canary_version.outputs.platform_major }}"
           VER="${{ steps.as_version.outputs.platform_version }}"
           SHORT_VER=$(echo "$VER" | cut -d'.' -f1,2)
           IC="IC-${SHORT_VER}"
           CURRENT=$(grep -oP '(?<=untilBuild\.set\(")[0-9]+' build.gradle.kts)
 
           echo "ic_version=${IC}" >> "$GITHUB_OUTPUT"
+          echo "canary_major=${CANARY}" >> "$GITHUB_OUTPUT"
 
-          if [ "$MAJOR" -gt "$CURRENT" ] || ! grep -qF "\"${IC}\"" build.gradle.kts; then
+          # Until major is the higher of stable release and canary
+          UNTIL_MAJOR="$MAJOR"
+          if [ -n "$CANARY" ] && [ "$CANARY" -gt "$MAJOR" ]; then
+            UNTIL_MAJOR="$CANARY"
+          fi
+
+          if [ "$UNTIL_MAJOR" -gt "$CURRENT" ] || ! grep -qF "\"${IC}\"" build.gradle.kts; then
             echo "needs_update=true" >> "$GITHUB_OUTPUT"
-            echo "Update needed: platformMajor=$MAJOR current=$CURRENT IC=$IC"
+            echo "Update needed: release=$MAJOR canary=$CANARY until=$UNTIL_MAJOR current=$CURRENT IC=$IC"
           else
             echo "needs_update=false" >> "$GITHUB_OUTPUT"
-            echo "Already up-to-date (platformMajor=$MAJOR current=$CURRENT IC=$IC)"
+            echo "Already up-to-date (release=$MAJOR canary=$CANARY current=$CURRENT IC=$IC)"
           fi
 
       - name: Update compatibility files
@@ -71,7 +107,8 @@ jobs:
           python3 scripts/update_as_version.py \
             "${{ steps.as_version.outputs.platform_major }}" \
             "${{ steps.as_version.outputs.platform_version }}" \
-            "${{ steps.as_version.outputs.codename }}"
+            "${{ steps.as_version.outputs.codename }}" \
+            "${{ steps.check.outputs.canary_major }}"
 
       - name: Open PR
         id: pr
@@ -88,7 +125,7 @@ jobs:
             ## Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }} detectado automaticamente
 
             ### Mudanças
-            - `untilBuild` → `${{ steps.as_version.outputs.platform_major }}.*`
+            - `untilBuild` → `${{ steps.check.outputs.canary_major || steps.as_version.outputs.platform_major }}.*` ${{ steps.check.outputs.canary_major && format('(Canary {0} estende o teto de compatibilidade)', steps.check.outputs.canary_major) || '' }}
             - `${{ steps.check.outputs.ic_version }}` adicionado em `ideVersions`
             - Badge do README atualizado
 
