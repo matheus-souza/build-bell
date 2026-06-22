@@ -1,0 +1,20 @@
+#!/bin/sh
+# Validates Conventional Commits format.
+# Skips merge commits, reverts, fixup and squash commits.
+MSG=$(cat "$1")
+case "$MSG" in
+  Merge*|Revert*|fixup!*|squash!*) exit 0 ;;
+esac
+PATTERN='^(feat|fix|docs|style|refactor|test|build|ci|perf|chore|revert)(\([^)]+\))?!?: .+'
+echo "$MSG" | grep -qE "$PATTERN" && exit 0
+echo ""
+echo "  Commit rejeitado: mensagem fora do padrão Conventional Commits."
+echo ""
+echo "  Formato:  <tipo>(<escopo opcional>): <descrição>"
+echo "  Tipos:    feat, fix, docs, style, refactor, test, build, ci, perf, chore, revert"
+echo "  Exemplos:"
+echo "    feat(sound): adicionar suporte a som customizado"
+echo "    fix: corrigir volume no macOS"
+echo "    chore: atualizar .gitignore"
+echo ""
+exit 1
