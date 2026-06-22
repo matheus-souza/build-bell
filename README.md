@@ -79,10 +79,11 @@ Stay focused on other tasks while your build runs. BuildBell will let you know w
 <!-- INSTALLATION -->
 ## Installation
 
-<!-- JetBrains Marketplace install button (renders in HTML contexts) -->
-<iframe width="245px" height="48px" src="https://plugins.jetbrains.com/embeddable/install/32401"></iframe>
-
 **Via Android Studio Plugin Marketplace (recommended):**
+
+<a href="https://plugins.jetbrains.com/plugin/32401">
+  <img alt="Install on JetBrains Marketplace" src="https://img.shields.io/badge/Install%20on-JetBrains%20Marketplace-000000?style=for-the-badge&logo=jetbrains&logoColor=white">
+</a>
 
 1. Open Android Studio
 2. Go to **Settings → Plugins**
