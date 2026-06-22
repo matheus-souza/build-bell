@@ -7,6 +7,39 @@ on:
     branches: [main, develop]
 
 jobs:
+  cc-check:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate commit messages
+        run: |
+          git log --format="%s" --no-merges origin/${{ github.base_ref }}..HEAD \
+            | grep -vP '^(Revert|fixup!|squash!)' \
+            | while IFS= read -r msg; do
+                [ -z "$msg" ] && continue
+                if ! echo "$msg" | grep -qP '^(feat|fix|docs|style|refactor|test|build|ci|perf|chore|revert)(\(.+\))?!?: .+'; then
+                  echo "Fora do padrão Conventional Commits: $msg"
+                  exit 1
+                fi
+              done
+
+  branch-policy:
+    name: Branch Policy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    steps:
+      - name: Validate source branch
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          if [[ "$BRANCH" != "develop" && "$BRANCH" != hotfix/* ]]; then
+            echo "PRs para main só são permitidos de 'develop' ou 'hotfix/*'. Branch: $BRANCH"
+            exit 1
+          fi
+
   auto-merge:
     name: Enable Auto Merge
     runs-on: ubuntu-latest

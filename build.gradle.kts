@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "br.com.matheuhsouza"
-version = "1.0.0"
+version = (findProperty("pluginVersion") as String?) ?: "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -127,5 +127,14 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+        channels.set(listOf(System.getenv("PUBLISH_CHANNEL") ?: "default"))
+    }
+}
+
+tasks.register("installHooks") {
+    group = "setup"
+    description = "Installs git hooks from scripts/hooks/ into .git/hooks/"
+    doLast {
+        exec { commandLine("sh", "scripts/install-hooks.sh") }
     }
 }
