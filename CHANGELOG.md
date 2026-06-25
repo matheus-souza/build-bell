@@ -1,3 +1,12 @@
+# [1.0.0-rc.2](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.1...v1.0.0-rc.2) (2026-06-25)
+
+
+### Bug Fixes
+
+* align intellij SDK version with sinceBuild and use full IC versions for CDN ([26660df](https://github.com/matheus-souza/build-bell/commit/26660df3e180df6f3a6cb13a60bb9feb5578da62))
+* revert intellij SDK version and free disk space before plugin verifier ([0d3d43d](https://github.com/matheus-souza/build-bell/commit/0d3d43d6e73edf3cd97970cac661019480a17a6a))
+* use patch ideVersions and skip IC entries absent from JetBrains CDN ([d9726f0](https://github.com/matheus-souza/build-bell/commit/d9726f0852ca590f62e9f09cb03e30fe86967fa8))
+
 # 1.0.0-rc.1 (2026-06-25)
 
 
