@@ -110,11 +110,11 @@ tasks {
     }
 
     runPluginVerifier {
-        ideVersions.set(listOf("IC-2023.2", "IC-2024.1", "IC-2024.2", "IC-2025.1", "IC-2025.2"))
+        ideVersions.set(listOf("IC-2023.3", "IC-2024.1", "IC-2024.2", "IC-2025.1", "IC-2025.2"))
     }
 
     patchPluginXml {
-        sinceBuild.set("213")
+        sinceBuild.set("233")
         untilBuild.set("263.*")
         changeNotes.set("Initial release of BuildBell.")
     }
