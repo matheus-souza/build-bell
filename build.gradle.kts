@@ -32,7 +32,7 @@ detekt {
 
 intellij {
     plugins.set(listOf("Kotlin", "android"))
-    version.set("2023.2.2")
+    version.set("2023.3.7")
     // Prevents IntelliJ from generating build/instrumented/instrumentCode/ — a second copy of
     // the plugin classes that could be loaded before our JaCoCo-instrumented version.
     instrumentCode.set(false)
