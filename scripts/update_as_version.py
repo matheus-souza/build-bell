@@ -56,7 +56,7 @@ def update_gradle(platform_major: str, platform_version: str, canary_major: str 
         print(f"[gradle] untilBuild kept at {current}.* (until_major={until_major} is not higher)")
 
     # ideVersions tracks only stable Release versions — no Canary
-    ic_version = f"IC-{_short_version(platform_version)}"
+    ic_version = f"IC-{platform_version}"
     if ic_version not in content:
         content = re.sub(
             r'(ideVersions\.set\(listOf\([^)]+)"(\))',
