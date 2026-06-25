@@ -22,6 +22,8 @@ Examples:
 
 import re
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
@@ -55,15 +57,28 @@ def update_gradle(platform_major: str, platform_version: str, canary_major: str 
         current = current_match.group(1) if current_match else "?"
         print(f"[gradle] untilBuild kept at {current}.* (until_major={until_major} is not higher)")
 
-    # ideVersions tracks only stable Release versions — no Canary
+    # ideVersions tracks only stable Release versions — no Canary.
+    # Android Studio versions (e.g. 2026.1.x) do not always have a matching IntelliJ
+    # Community tarball; skip silently when the CDN returns 404.
     ic_version = f"IC-{platform_version}"
     if ic_version not in content:
-        content = re.sub(
-            r'(ideVersions\.set\(listOf\([^)]+)"(\))',
-            rf'\1", "{ic_version}"\2',
-            content,
-        )
-        print(f"[gradle] added {ic_version} to ideVersions")
+        cdn_url = f"https://download-cdn.jetbrains.com/idea/ideaIC-{platform_version}.tar.gz"
+        try:
+            req = urllib.request.Request(cdn_url, method="HEAD")
+            urllib.request.urlopen(req, timeout=15)
+            tarball_exists = True
+        except (urllib.error.HTTPError, urllib.error.URLError, OSError):
+            tarball_exists = False
+
+        if tarball_exists:
+            content = re.sub(
+                r'(ideVersions\.set\(listOf\([^)]+)"(\))',
+                rf'\1", "{ic_version}"\2',
+                content,
+            )
+            print(f"[gradle] added {ic_version} to ideVersions")
+        else:
+            print(f"[gradle] skipped {ic_version}: ideaIC-{platform_version}.tar.gz not on CDN")
 
     path.write_text(content)
 

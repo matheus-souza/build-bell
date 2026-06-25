@@ -92,12 +92,24 @@ jobs:
             UNTIL_MAJOR="$CANARY"
           fi
 
-          if [ "$UNTIL_MAJOR" -gt "$CURRENT" ] || ! grep -qF "\"${IC}\"" build.gradle.kts; then
+          # Only flag IC as missing when its tarball actually exists on CDN.
+          # Android Studio 2026.x+ versions may not have a matching IntelliJ Community release.
+          IC_ON_CDN=false
+          if curl -sf --head "https://download-cdn.jetbrains.com/idea/ideaIC-${VER}.tar.gz" > /dev/null 2>&1; then
+            IC_ON_CDN=true
+          fi
+
+          IC_MISSING=false
+          if [ "$IC_ON_CDN" = "true" ] && ! grep -qF "\"${IC}\"" build.gradle.kts; then
+            IC_MISSING=true
+          fi
+
+          if [ "$UNTIL_MAJOR" -gt "$CURRENT" ] || [ "$IC_MISSING" = "true" ]; then
             echo "needs_update=true" >> "$GITHUB_OUTPUT"
-            echo "Update needed: release=$MAJOR canary=$CANARY until=$UNTIL_MAJOR current=$CURRENT IC=$IC"
+            echo "Update needed: release=$MAJOR canary=$CANARY until=$UNTIL_MAJOR current=$CURRENT IC=$IC ic_on_cdn=$IC_ON_CDN"
           else
             echo "needs_update=false" >> "$GITHUB_OUTPUT"
-            echo "Already up-to-date (release=$MAJOR canary=$CANARY current=$CURRENT IC=$IC)"
+            echo "Already up-to-date (release=$MAJOR canary=$CANARY current=$CURRENT IC=$IC ic_on_cdn=$IC_ON_CDN)"
           fi
 
       - name: Update compatibility files
