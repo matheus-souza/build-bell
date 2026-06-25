@@ -118,8 +118,8 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           base: develop
           branch: chore/as-${{ steps.as_version.outputs.codename }}-${{ steps.as_version.outputs.platform_version }}
-          commit-message: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
-          title: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
+          commit-message: "fix: support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
+          title: "fix: support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
           labels: version-update
           body: |
             ## Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }} detectado automaticamente
