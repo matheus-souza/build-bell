@@ -1,3 +1,10 @@
+# [1.0.0-rc.3](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.2...v1.0.0-rc.3) (2026-06-25)
+
+
+### Features
+
+* add SVG plugin icon for JetBrains Marketplace display ([0d6e569](https://github.com/matheus-souza/build-bell/commit/0d6e569aa6b4425703c4b787bcd429cdd2f4ace1))
+
 # [1.0.0-rc.2](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.1...v1.0.0-rc.2) (2026-06-25)
 
 
