@@ -9,26 +9,34 @@ plugins {
 group = "br.com.matheuhsouza"
 version = (findProperty("pluginVersion") as String?) ?: "1.0.0-SNAPSHOT"
 
+fun String.escapeHtml(): String = replace("&", "&amp;")
+    .replace("<", "&lt;")
+    .replace(">", "&gt;")
+    .replace("\"", "&quot;")
+
 fun latestChangeNotes(): String {
     val changelog = rootProject.file("CHANGELOG.md")
     if (!changelog.exists()) return ""
-    val text = changelog.readText()
-    // Extract content of the first version section
+    val text = changelog.readText().replace("\r\n", "\n")
     val sectionContent = Regex("""(?m)^# .+\n([\s\S]+?)(?=^# |\z)""")
-        .find(text)?.groupValues?.get(1)?.trim() ?: return ""
-    // Convert semantic-release Markdown to basic HTML
+        .find(text)?.groupValues?.get(1)?.trim()
+    if (sectionContent.isNullOrBlank()) {
+        logger.warn("latestChangeNotes: no version section found in CHANGELOG.md")
+        return ""
+    }
     val sb = StringBuilder()
     var inList = false
     for (line in sectionContent.lines()) {
         when {
             line.startsWith("### ") -> {
                 if (inList) { sb.append("</ul>"); inList = false }
-                sb.append("<h3>${line.drop(4)}</h3>")
+                sb.append("<h3>${line.drop(4).escapeHtml()}</h3>")
             }
             line.startsWith("* ") -> {
                 if (!inList) { sb.append("<ul>"); inList = true }
-                // Strip commit hash links like ([abc1234](url)) from the end
-                val item = line.drop(2).replace(Regex("""\s*\(\[[\da-f]+]\([^)]+\)\)"""), "")
+                val item = line.drop(2)
+                    .replace(Regex("""\s*\(\[[\da-f]+]\([^)]+\)\)"""), "")
+                    .escapeHtml()
                 sb.append("<li>$item</li>")
             }
             line.isBlank() -> if (inList) { sb.append("</ul>"); inList = false }
