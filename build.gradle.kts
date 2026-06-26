@@ -9,6 +9,35 @@ plugins {
 group = "br.com.matheuhsouza"
 version = (findProperty("pluginVersion") as String?) ?: "1.0.0-SNAPSHOT"
 
+fun latestChangeNotes(): String {
+    val changelog = rootProject.file("CHANGELOG.md")
+    if (!changelog.exists()) return ""
+    val text = changelog.readText()
+    // Extract content of the first version section
+    val sectionContent = Regex("""(?m)^# .+\n([\s\S]+?)(?=^# |\z)""")
+        .find(text)?.groupValues?.get(1)?.trim() ?: return ""
+    // Convert semantic-release Markdown to basic HTML
+    val sb = StringBuilder()
+    var inList = false
+    for (line in sectionContent.lines()) {
+        when {
+            line.startsWith("### ") -> {
+                if (inList) { sb.append("</ul>"); inList = false }
+                sb.append("<h3>${line.drop(4)}</h3>")
+            }
+            line.startsWith("* ") -> {
+                if (!inList) { sb.append("<ul>"); inList = true }
+                // Strip commit hash links like ([abc1234](url)) from the end
+                val item = line.drop(2).replace(Regex("""\s*\(\[[\da-f]+]\([^)]+\)\)"""), "")
+                sb.append("<li>$item</li>")
+            }
+            line.isBlank() -> if (inList) { sb.append("</ul>"); inList = false }
+        }
+    }
+    if (inList) sb.append("</ul>")
+    return sb.toString()
+}
+
 repositories {
     mavenCentral()
 }
@@ -116,7 +145,7 @@ tasks {
     patchPluginXml {
         sinceBuild.set("233")
         untilBuild.set("263.*")
-        changeNotes.set("Initial release of BuildBell.")
+        changeNotes.set(latestChangeNotes())
     }
 
     signPlugin {
