@@ -1,3 +1,10 @@
+# [1.0.0-rc.6](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.5...v1.0.0-rc.6) (2026-06-26)
+
+
+### Features
+
+* improve plugin listing following JetBrains Marketplace best practices ([e670941](https://github.com/matheus-souza/build-bell/commit/e6709419d69059968f3988c62650d63171c60842))
+
 # [1.0.0-rc.5](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.4...v1.0.0-rc.5) (2026-06-26)
 
 
