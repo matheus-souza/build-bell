@@ -1,16 +1,24 @@
-<idea-plugin>
+<idea-plugin url="https://github.com/matheus-souza/build-bell">
     <id>br.com.matheuhsouza.buildbell</id>
     <name>BuildBell</name>
     <vendor email="mh.matheussouza@gmail.com" url="https://matheuhsouza.com.br">Matheus Souza</vendor>
     <description><![CDATA[
-    <h2>BuildBell — Build Completion Sound Notifier</h2><br>
-    Never miss a build again. BuildBell plays a sound effect as soon as your Gradle build finishes,
-    so you can stay focused on other tasks while waiting.<br><br>
-    <b>Features:</b><br>
-    - Plays a success sound when the build passes.<br>
-    - Plays a failure sound when the build fails.<br><br>
-    <b>Note:</b> Make sure your speakers or headphones are connected and the volume is adjusted accordingly.<br>
-  ]]></description>
+    <p>Get notified by sound when your Gradle build finishes. BuildBell plays distinct audio cues
+    on success and failure, so you can stay focused on other tasks without watching the IDE.</p>
+
+    <ul>
+      <li><b>Distinct sounds</b> — separate tones for build success and build failure</li>
+      <li><b>Automatic</b> — works immediately after installation, no configuration required</li>
+      <li><b>Audio-only</b> — no popups or UI modifications, just audio feedback</li>
+    </ul>
+
+    <p><b>Note:</b> Speakers or headphones must be connected and volume turned on.</p>
+
+    <p>
+      <a href="https://github.com/matheus-souza/build-bell/issues">Report an issue</a> ·
+      <a href="https://github.com/matheus-souza/build-bell">Source code</a>
+    </p>
+    ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.androidstudio</depends>
