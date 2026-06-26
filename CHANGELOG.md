@@ -1,3 +1,11 @@
+# [1.0.0-rc.7](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.6...v1.0.0-rc.7) (2026-06-26)
+
+
+### Bug Fixes
+
+* address CodeRabbit review comments on PR [#24](https://github.com/matheus-souza/build-bell/issues/24) ([c55dbe7](https://github.com/matheus-souza/build-bell/commit/c55dbe7502371d2b6ad5d24fe6c019b780689a9f))
+* scope ideVersions check to block only; show Canary note only when it extends the ceiling ([3d9f00c](https://github.com/matheus-souza/build-bell/commit/3d9f00c5ed039025aaafd13a0bc699a61ef9f125))
+
 # [1.0.0-rc.6](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.5...v1.0.0-rc.6) (2026-06-26)
 
 
