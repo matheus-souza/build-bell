@@ -10,7 +10,7 @@ jobs:
   cc-check:
     name: Conventional Commits
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.base_ref == 'develop'
     steps:
       - uses: actions/checkout@v4
         with:
