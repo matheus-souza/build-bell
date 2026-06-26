@@ -4,6 +4,7 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+    request_changes_workflow: true
     base_branches:
       - main
       - develop
