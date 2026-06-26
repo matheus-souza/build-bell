@@ -1,3 +1,10 @@
+# [1.0.0-rc.5](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.4...v1.0.0-rc.5) (2026-06-26)
+
+
+### Bug Fixes
+
+* escape HTML in changeNotes and warn when CHANGELOG section is missing ([c450802](https://github.com/matheus-souza/build-bell/commit/c450802c163e0a7349fea3216d1aec4614a23ab9))
+
 # [1.0.0-rc.4](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.3...v1.0.0-rc.4) (2026-06-26)
 
 
