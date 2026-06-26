@@ -138,7 +138,7 @@ jobs:
             ## Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }} detectado automaticamente
 
             ### Mudanças
-            - `untilBuild` → `${{ steps.check.outputs.until_major }}.*` ${{ steps.check.outputs.canary_major && format('(Canary {0} estende o teto de compatibilidade)', steps.check.outputs.canary_major) || '' }}
+            - `untilBuild` → `${{ steps.check.outputs.until_major }}.*` ${{ steps.check.outputs.until_major == steps.check.outputs.canary_major && format('(Canary {0} estende o teto de compatibilidade)', steps.check.outputs.canary_major) || '' }}
             - `${{ steps.check.outputs.ic_version }}` adicionado em `ideVersions`
             - Badge do README atualizado
 
