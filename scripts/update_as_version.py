@@ -61,7 +61,7 @@ def update_gradle(platform_major: str, platform_version: str, canary_major: str 
     # Android Studio versions (e.g. 2026.1.x) do not always have a matching IntelliJ
     # Community tarball; skip silently when the CDN returns 404.
     ic_version = f"IC-{platform_version}"
-    if ic_version not in content:
+    if f'"{ic_version}"' not in content:
         cdn_url = f"https://download-cdn.jetbrains.com/idea/ideaIC-{platform_version}.tar.gz"
         try:
             req = urllib.request.Request(cdn_url, method="HEAD")

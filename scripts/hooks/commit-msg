@@ -1,7 +1,7 @@
 #!/bin/sh
 # Validates Conventional Commits format.
 # Skips merge commits, reverts, fixup and squash commits.
-MSG=$(cat "$1")
+MSG=$(head -1 "$1")
 case "$MSG" in
   Merge*|Revert*|fixup!*|squash!*) exit 0 ;;
 esac

@@ -14,15 +14,24 @@ fun String.escapeHtml(): String = replace("&", "&amp;")
     .replace(">", "&gt;")
     .replace("\"", "&quot;")
 
+fun String.inlineMarkdownToHtml(): String =
+    // **bold** → <b>bold</b>
+    replace(Regex("""\*\*([^*]+)\*\*"""), "<b>$1</b>")
+    // [text](url) → <a href="url">text</a>
+    .replace(Regex("""\[([^\]]+)]\(([^)]+)\)"""), "<a href=\"$2\">$1</a>")
+
 fun latestChangeNotes(): String {
     val changelog = rootProject.file("CHANGELOG.md")
-    if (!changelog.exists()) return ""
+    if (!changelog.exists()) {
+        logger.warn("latestChangeNotes: CHANGELOG.md not found")
+        return "See the project repository for release notes."
+    }
     val text = changelog.readText().replace("\r\n", "\n")
     val sectionContent = Regex("""(?m)^# .+\n([\s\S]+?)(?=^# |\z)""")
         .find(text)?.groupValues?.get(1)?.trim()
     if (sectionContent.isNullOrBlank()) {
         logger.warn("latestChangeNotes: no version section found in CHANGELOG.md")
-        return ""
+        return "See the project repository for release notes."
     }
     val sb = StringBuilder()
     var inList = false
@@ -37,6 +46,7 @@ fun latestChangeNotes(): String {
                 val item = line.drop(2)
                     .replace(Regex("""\s*\(\[[\da-f]+]\([^)]+\)\)"""), "")
                     .escapeHtml()
+                    .inlineMarkdownToHtml()
                 sb.append("<li>$item</li>")
             }
             line.isBlank() -> if (inList) { sb.append("</ul>"); inList = false }

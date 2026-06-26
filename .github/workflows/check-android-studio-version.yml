@@ -71,14 +71,14 @@ jobs:
               print('No Canary build found in feed')
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write(f'platform_major={canary_major}\n')
+              f.write(f'canary_major={canary_major}\n')
           PYEOF
 
       - name: Check if update is needed
         id: check
         run: |
           MAJOR="${{ steps.as_version.outputs.platform_major }}"
-          CANARY="${{ steps.canary_version.outputs.platform_major }}"
+          CANARY="${{ steps.canary_version.outputs.canary_major }}"
           VER="${{ steps.as_version.outputs.platform_version }}"
           IC="IC-${VER}"
           CURRENT=$(grep -oP '(?<=untilBuild\.set\(")[0-9]+' build.gradle.kts)
@@ -103,6 +103,8 @@ jobs:
           if [ "$IC_ON_CDN" = "true" ] && ! grep -qF "\"${IC}\"" build.gradle.kts; then
             IC_MISSING=true
           fi
+
+          echo "until_major=${UNTIL_MAJOR}" >> "$GITHUB_OUTPUT"
 
           if [ "$UNTIL_MAJOR" -gt "$CURRENT" ] || [ "$IC_MISSING" = "true" ]; then
             echo "needs_update=true" >> "$GITHUB_OUTPUT"
@@ -136,7 +138,7 @@ jobs:
             ## Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }} detectado automaticamente
 
             ### Mudanças
-            - `untilBuild` → `${{ steps.check.outputs.canary_major || steps.as_version.outputs.platform_major }}.*` ${{ steps.check.outputs.canary_major && format('(Canary {0} estende o teto de compatibilidade)', steps.check.outputs.canary_major) || '' }}
+            - `untilBuild` → `${{ steps.check.outputs.until_major }}.*` ${{ steps.check.outputs.canary_major && format('(Canary {0} estende o teto de compatibilidade)', steps.check.outputs.canary_major) || '' }}
             - `${{ steps.check.outputs.ic_version }}` adicionado em `ideVersions`
             - Badge do README atualizado
 
