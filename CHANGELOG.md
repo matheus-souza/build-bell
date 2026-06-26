@@ -1,3 +1,10 @@
+# [1.0.0-rc.4](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.3...v1.0.0-rc.4) (2026-06-26)
+
+
+### Features
+
+* populate What's New from CHANGELOG.md on every release ([0a4ad7d](https://github.com/matheus-souza/build-bell/commit/0a4ad7dd012fd4a5ed2b3ea04fdb9f0cf7c9769d))
+
 # [1.0.0-rc.3](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.2...v1.0.0-rc.3) (2026-06-25)
 
 
