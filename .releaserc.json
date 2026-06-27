@@ -26,7 +26,7 @@
     [
       "@semantic-release/exec",
       {
-        "publishCmd": "./gradlew -PpluginVersion=${nextRelease.version} buildPlugin signPlugin publishPlugin"
+        "publishCmd": "bash scripts/publish-plugin.sh ${nextRelease.version}"
       }
     ],
     [
