@@ -76,10 +76,14 @@ jobs:
 
       - name: Check if update is needed
         id: check
+        env:
+          MAJOR_IN: ${{ steps.as_version.outputs.platform_major }}
+          CANARY_IN: ${{ steps.canary_version.outputs.canary_major }}
+          VER_IN: ${{ steps.as_version.outputs.platform_version }}
         run: |
-          MAJOR="${{ steps.as_version.outputs.platform_major }}"
-          CANARY="${{ steps.canary_version.outputs.canary_major }}"
-          VER="${{ steps.as_version.outputs.platform_version }}"
+          MAJOR="$MAJOR_IN"
+          CANARY="$CANARY_IN"
+          VER="$VER_IN"
           IC="IC-${VER}"
           CURRENT=$(grep -oP '(?<=untilBuild\.set\(")[0-9]+' build.gradle.kts)
 
@@ -116,12 +120,14 @@ jobs:
 
       - name: Update compatibility files
         if: steps.check.outputs.needs_update == 'true'
+        env:
+          AS_MAJOR: ${{ steps.as_version.outputs.platform_major }}
+          AS_VERSION: ${{ steps.as_version.outputs.platform_version }}
+          AS_CODENAME: ${{ steps.as_version.outputs.codename }}
+          AS_CANARY: ${{ steps.check.outputs.canary_major }}
         run: |
           python3 scripts/update_as_version.py \
-            "${{ steps.as_version.outputs.platform_major }}" \
-            "${{ steps.as_version.outputs.platform_version }}" \
-            "${{ steps.as_version.outputs.codename }}" \
-            "${{ steps.check.outputs.canary_major }}"
+            "$AS_MAJOR" "$AS_VERSION" "$AS_CODENAME" "$AS_CANARY"
 
       - name: Open PR
         id: pr

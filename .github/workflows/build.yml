@@ -17,8 +17,8 @@ jobs:
           fetch-depth: 0
       - name: Validate commit messages
         run: |
-          msgs=$(git log --format="%s" --no-merges origin/${{ github.base_ref }}..HEAD \
-            | grep -vP '^(Revert|fixup!|squash!)' || true)
+          all_msgs=$(git log --format="%s" --no-merges "origin/${{ github.base_ref }}..HEAD")
+          msgs=$(printf '%s\n' "$all_msgs" | grep -vP '^(Revert|fixup!|squash!)' || true)
           [ -z "$msgs" ] && exit 0
           echo "$msgs" | while IFS= read -r msg; do
             [ -z "$msg" ] && continue
