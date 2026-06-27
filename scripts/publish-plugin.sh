@@ -6,7 +6,7 @@ VERSION="$1"
 LOG_FILE="$(mktemp)"
 trap 'rm -f "$LOG_FILE"' EXIT
 
-./gradlew -PpluginVersion="$VERSION" buildPlugin signPlugin publishPlugin 2>&1 | tee "$LOG_FILE" || true
+./gradlew -PpluginVersion="$VERSION" buildPlugin signPlugin publishPlugin 2>&1 | tee "$LOG_FILE"
 EXIT_CODE=${PIPESTATUS[0]}
 
 if [ "$EXIT_CODE" -ne 0 ]; then
