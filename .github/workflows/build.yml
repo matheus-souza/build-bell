@@ -172,21 +172,25 @@ jobs:
 
       - name: SonarCloud Scan (PR)
         if: github.event_name == 'pull_request'
-        run: >
-          sonar-scanner
-          -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
-          -Dsonar.pullrequest.branch=${{ github.head_ref }}
-          -Dsonar.pullrequest.base=${{ github.base_ref }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          sonar-scanner \
+            "-Dsonar.pullrequest.key=$PR_NUMBER" \
+            "-Dsonar.pullrequest.branch=$HEAD_REF" \
+            "-Dsonar.pullrequest.base=$BASE_REF"
 
       - name: SonarCloud Scan (branch)
         if: github.event_name == 'push'
-        run: sonar-scanner -Dsonar.branch.name=${{ github.ref_name }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF_NAME: ${{ github.ref_name }}
+        run: sonar-scanner "-Dsonar.branch.name=$REF_NAME"
 
   qodana:
     name: Qodana Analysis
