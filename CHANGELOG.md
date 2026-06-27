@@ -1,3 +1,10 @@
+## [1.0.1-rc.1](https://github.com/matheus-souza/build-bell/compare/v1.0.0...v1.0.1-rc.1) (2026-06-27)
+
+
+### Bug Fixes
+
+* pass SonarCloud scan refs via env to prevent shell injection ([b96ad14](https://github.com/matheus-souza/build-bell/commit/b96ad14d905142773a065d03084d560d8187e164))
+
 # 1.0.0 (2026-06-27)
 
 
@@ -38,6 +45,13 @@
 * improve plugin listing following JetBrains Marketplace best practices ([e670941](https://github.com/matheus-souza/build-bell/commit/e6709419d69059968f3988c62650d63171c60842))
 * populate What's New from CHANGELOG.md on every release ([0a4ad7d](https://github.com/matheus-souza/build-bell/commit/0a4ad7dd012fd4a5ed2b3ea04fdb9f0cf7c9769d))
 * **release:** add semantic-release with RC and stable channels ([c388761](https://github.com/matheus-souza/build-bell/commit/c3887612d669dcbb93171e06201f15e9c81db7f4))
+
+# [1.0.0-rc.8](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2026-06-27)
+
+
+### Bug Fixes
+
+* pass SonarCloud scan refs via env to prevent shell injection ([b96ad14](https://github.com/matheus-souza/build-bell/commit/b96ad14d905142773a065d03084d560d8187e164))
 
 # [1.0.0-rc.7](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.6...v1.0.0-rc.7) (2026-06-26)
 
