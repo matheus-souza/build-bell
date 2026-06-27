@@ -13,6 +13,8 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: develop
 
       - name: Fetch latest Android Studio release
         id: as_version
@@ -41,51 +43,108 @@ jobs:
               f.write(f'platform_version={platform_version}\n')
               f.write(f'codename={codename}\n')
 
-          print(f'Latest AS: {name}  |  major={platform_major}  version={platform_version}  codename={codename}')
+          print(f'Latest AS release: {name}  |  major={platform_major}  version={platform_version}  codename={codename}')
+          PYEOF
+
+      - name: Fetch latest Android Studio Canary
+        id: canary_version
+        run: |
+          python3 - <<'PYEOF'
+          import xml.etree.ElementTree as ET, os
+
+          with open('/tmp/as_releases.xml') as f:
+              data = f.read()
+
+          root = ET.fromstring('<root>' + data + '</root>')
+          content = root.find('content')
+
+          canary_major = ""
+          for item in content.findall('item'):
+              if item.findtext('channel') == 'Canary':
+                  platform_build = item.findtext('platformBuild')
+                  canary_major = platform_build.split('.')[0]
+                  name = item.findtext('name')
+                  print(f'Latest AS canary: {name}  |  major={canary_major}')
+                  break
+
+          if not canary_major:
+              print('No Canary build found in feed')
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'canary_major={canary_major}\n')
           PYEOF
 
       - name: Check if update is needed
         id: check
+        env:
+          MAJOR_IN: ${{ steps.as_version.outputs.platform_major }}
+          CANARY_IN: ${{ steps.canary_version.outputs.canary_major }}
+          VER_IN: ${{ steps.as_version.outputs.platform_version }}
         run: |
-          MAJOR="${{ steps.as_version.outputs.platform_major }}"
-          VER="${{ steps.as_version.outputs.platform_version }}"
-          SHORT_VER=$(echo "$VER" | cut -d'.' -f1,2)
-          IC="IC-${SHORT_VER}"
+          MAJOR="$MAJOR_IN"
+          CANARY="$CANARY_IN"
+          VER="$VER_IN"
+          IC="IC-${VER}"
           CURRENT=$(grep -oP '(?<=untilBuild\.set\(")[0-9]+' build.gradle.kts)
 
           echo "ic_version=${IC}" >> "$GITHUB_OUTPUT"
+          echo "canary_major=${CANARY}" >> "$GITHUB_OUTPUT"
 
-          if [ "$MAJOR" -gt "$CURRENT" ] || ! grep -qF "\"${IC}\"" build.gradle.kts; then
+          # Until major is the higher of stable release and canary
+          UNTIL_MAJOR="$MAJOR"
+          if [ -n "$CANARY" ] && [ "$CANARY" -gt "$MAJOR" ]; then
+            UNTIL_MAJOR="$CANARY"
+          fi
+
+          # Only flag IC as missing when its tarball actually exists on CDN.
+          # Android Studio 2026.x+ versions may not have a matching IntelliJ Community release.
+          IC_ON_CDN=false
+          if curl -sf --head "https://download-cdn.jetbrains.com/idea/ideaIC-${VER}.tar.gz" > /dev/null 2>&1; then
+            IC_ON_CDN=true
+          fi
+
+          IC_MISSING=false
+          if [ "$IC_ON_CDN" = "true" ] && ! grep -qF "\"${IC}\"" build.gradle.kts; then
+            IC_MISSING=true
+          fi
+
+          echo "until_major=${UNTIL_MAJOR}" >> "$GITHUB_OUTPUT"
+
+          if [ "$UNTIL_MAJOR" -gt "$CURRENT" ] || [ "$IC_MISSING" = "true" ]; then
             echo "needs_update=true" >> "$GITHUB_OUTPUT"
-            echo "Update needed: platformMajor=$MAJOR current=$CURRENT IC=$IC"
+            echo "Update needed: release=$MAJOR canary=$CANARY until=$UNTIL_MAJOR current=$CURRENT IC=$IC ic_on_cdn=$IC_ON_CDN"
           else
             echo "needs_update=false" >> "$GITHUB_OUTPUT"
-            echo "Already up-to-date (platformMajor=$MAJOR current=$CURRENT IC=$IC)"
+            echo "Already up-to-date (release=$MAJOR canary=$CANARY current=$CURRENT IC=$IC ic_on_cdn=$IC_ON_CDN)"
           fi
 
       - name: Update compatibility files
         if: steps.check.outputs.needs_update == 'true'
+        env:
+          AS_MAJOR: ${{ steps.as_version.outputs.platform_major }}
+          AS_VERSION: ${{ steps.as_version.outputs.platform_version }}
+          AS_CODENAME: ${{ steps.as_version.outputs.codename }}
+          AS_CANARY: ${{ steps.check.outputs.canary_major }}
         run: |
           python3 scripts/update_as_version.py \
-            "${{ steps.as_version.outputs.platform_major }}" \
-            "${{ steps.as_version.outputs.platform_version }}" \
-            "${{ steps.as_version.outputs.codename }}"
+            "$AS_MAJOR" "$AS_VERSION" "$AS_CODENAME" "$AS_CANARY"
 
       - name: Open PR
         id: pr
         if: steps.check.outputs.needs_update == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
+          base: develop
           branch: chore/as-${{ steps.as_version.outputs.codename }}-${{ steps.as_version.outputs.platform_version }}
-          commit-message: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
-          title: "support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
+          commit-message: "fix: support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
+          title: "fix: support Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }}"
           labels: version-update
           body: |
             ## Android Studio ${{ steps.as_version.outputs.codename }} ${{ steps.as_version.outputs.platform_version }} detectado automaticamente
 
             ### Mudanças
-            - `untilBuild` → `${{ steps.as_version.outputs.platform_major }}.*`
+            - `untilBuild` → `${{ steps.check.outputs.until_major }}.*` ${{ steps.check.outputs.until_major == steps.check.outputs.canary_major && format('(Canary {0} estende o teto de compatibilidade)', steps.check.outputs.canary_major) || '' }}
             - `${{ steps.check.outputs.ic_version }}` adicionado em `ideVersions`
             - Badge do README atualizado
 

@@ -1,13 +1,60 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.23"
+    id("org.jetbrains.kotlin.jvm") version "2.4.0"
     id("org.jetbrains.intellij") version "1.17.4"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
     jacoco
 }
 
 group = "br.com.matheuhsouza"
-version = "1.0.0"
+version = (findProperty("pluginVersion") as String?) ?: "1.0.0-SNAPSHOT"
+
+fun String.escapeHtml(): String = replace("&", "&amp;")
+    .replace("<", "&lt;")
+    .replace(">", "&gt;")
+    .replace("\"", "&quot;")
+
+fun String.inlineMarkdownToHtml(): String =
+    // **bold** → <b>bold</b>
+    replace(Regex("""\*\*([^*]+)\*\*"""), "<b>$1</b>")
+    // [text](url) → <a href="url">text</a>
+    .replace(Regex("""\[([^\]]+)]\(([^)]+)\)"""), "<a href=\"$2\">$1</a>")
+
+fun latestChangeNotes(): String {
+    val changelog = rootProject.file("CHANGELOG.md")
+    if (!changelog.exists()) {
+        logger.warn("latestChangeNotes: CHANGELOG.md not found")
+        return "See the project repository for release notes."
+    }
+    val text = changelog.readText().replace("\r\n", "\n")
+    val sectionContent = Regex("""(?m)^# .+\n([\s\S]+?)(?=^# |\z)""")
+        .find(text)?.groupValues?.get(1)?.trim()
+    if (sectionContent.isNullOrBlank()) {
+        logger.warn("latestChangeNotes: no version section found in CHANGELOG.md")
+        return "See the project repository for release notes."
+    }
+    val sb = StringBuilder()
+    var inList = false
+    for (line in sectionContent.lines()) {
+        when {
+            line.startsWith("### ") -> {
+                if (inList) { sb.append("</ul>"); inList = false }
+                sb.append("<h3>${line.drop(4).escapeHtml()}</h3>")
+            }
+            line.startsWith("* ") -> {
+                if (!inList) { sb.append("<ul>"); inList = true }
+                val item = line.drop(2)
+                    .replace(Regex("""\s*\(\[[\da-f]+]\([^)]+\)\)"""), "")
+                    .escapeHtml()
+                    .inlineMarkdownToHtml()
+                sb.append("<li>$item</li>")
+            }
+            line.isBlank() -> if (inList) { sb.append("</ul>"); inList = false }
+        }
+    }
+    if (inList) sb.append("</ul>")
+    return sb.toString()
+}
 
 repositories {
     mavenCentral()
@@ -43,8 +90,8 @@ tasks {
         sourceCompatibility = "17"
         targetCompatibility = "17"
     }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 
     // JacocoInstrument is not a built-in Gradle task type. Use the JaCoCo Ant task to
@@ -110,13 +157,13 @@ tasks {
     }
 
     runPluginVerifier {
-        ideVersions.set(listOf("IC-2023.2", "IC-2024.1", "IC-2024.2", "IC-2025.1", "IC-2025.2"))
+        ideVersions.set(listOf("IC-2023.3.8", "IC-2024.1.7", "IC-2024.2.6", "IC-2025.1.7", "IC-2025.2.6"))
     }
 
     patchPluginXml {
-        sinceBuild.set("213")
+        sinceBuild.set("233")
         untilBuild.set("263.*")
-        changeNotes.set("Initial release of BuildBell.")
+        changeNotes.set(latestChangeNotes())
     }
 
     signPlugin {
@@ -127,5 +174,14 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+        channels.set(listOf(System.getenv("PUBLISH_CHANNEL") ?: "default"))
+    }
+}
+
+tasks.register("installHooks") {
+    group = "setup"
+    description = "Installs git hooks from scripts/hooks/ into .git/hooks/"
+    doLast {
+        exec { commandLine("sh", "scripts/install-hooks.sh") }
     }
 }

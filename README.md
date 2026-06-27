@@ -23,6 +23,8 @@
   </p>
   <br />
   <img src="https://img.shields.io/badge/Android%20Studio-Dolphin%202021.3%20→%20Quail%202025.4-3DDC84?style=flat-square&logo=androidstudio&logoColor=white" alt="Supported Android Studio versions: Dolphin 2021.3 to Quail 2025.4">
+  <a href="https://github.com/matheus-souza/build-bell/releases/latest"><img src="https://img.shields.io/github/v/release/matheus-souza/build-bell?style=flat-square&color=3DDC84&label=version" alt="Latest release"></a>
+  <a href="https://plugins.jetbrains.com/plugin/32401"><img src="https://img.shields.io/jetbrains/plugin/d/32401?style=flat-square&label=downloads&color=3DDC84" alt="JetBrains Plugin Downloads"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell"><img src="https://img.shields.io/sonar/quality_gate/matheus-souza_build-bell?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white" alt="Quality Gate Status"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=matheus-souza_build-bell"><img src="https://img.shields.io/sonar/coverage/matheus-souza_build-bell?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&logoColor=white" alt="Coverage"></a>
 </div>
@@ -78,6 +80,10 @@ Stay focused on other tasks while your build runs. BuildBell will let you know w
 ## Installation
 
 **Via Android Studio Plugin Marketplace (recommended):**
+
+<a href="https://plugins.jetbrains.com/plugin/32401">
+  <img alt="Install on JetBrains Marketplace" src="https://img.shields.io/badge/Install%20on-JetBrains%20Marketplace-000000?style=for-the-badge&logo=jetbrains&logoColor=white">
+</a>
 
 1. Open Android Studio
 2. Go to **Settings → Plugins**
