@@ -1,3 +1,10 @@
+# [1.0.0-rc.8](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2026-06-27)
+
+
+### Bug Fixes
+
+* pass SonarCloud scan refs via env to prevent shell injection ([b96ad14](https://github.com/matheus-souza/build-bell/commit/b96ad14d905142773a065d03084d560d8187e164))
+
 # [1.0.0-rc.7](https://github.com/matheus-souza/build-bell/compare/v1.0.0-rc.6...v1.0.0-rc.7) (2026-06-26)
 
 
